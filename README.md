@@ -1,43 +1,62 @@
-# Live PC Stats Monitor with ESP32
+![Dashboard Preview](livemonitor.jpg)
+
+# Live PC Stats Monitor with ESP32 & SquareLine Studio
 
 ## 🚀 Project Overview
 
-This project aims to create a dedicated, real-time hardware monitor display using an **ESP32** microcontroller.
+This project is a dedicated, real-time hardware monitor display powered by an **ESP32** microcontroller. It visualizes critical PC statistics (CPU, GPU, RAM) on an external screen with a modern GUI designed in **SquareLine Studio**.
 
-The system works by setting up a local HTTP API on the PC side, which is powered by data collected from the **LibreHardwareMonitor** library. The ESP32 acts as a client, making HTTP GET requests to this local API, parsing the JSON response, and displaying the live PC statistics on a connected display (e.g., OLED, TFT).
-
-Initially, the project focuses on core CPU metrics, but it is designed to be easily extensible.
+Unlike the initial version, this system now supports high-speed data transmission via **USB Serial**, with optional support for **Wi-Fi**. The PC-side logic parses sensor data and transmits it to the ESP32, where it is rendered using the LVGL library.
 
 ## ✨ Features
 
-* **Real-time Monitoring:** Get live updates of your PC's hardware status.
-* **Decoupled Architecture:** Separates data collection (PC side, Arduino/C# application) from the display logic (ESP32).
-* **JSON API:** Uses a standard JSON format for data transfer between the PC and the ESP32 for flexibility.
-* **Current Metrics (Initial):**
-    * **CPU Temperature**
+* **Modern GUI:** Professional-grade interface designed using **SquareLine Studio** (LVGL).
+* **Dual Connectivity:**
+    * **USB Serial:** Low latency, reliable wired connection (Primary).
+    * **Wi-Fi:** Wireless capabilities for remote monitoring.
+* **Multi-Language PC Clients:**
+    * **Python Script:** Lightweight script for parsing and sending data via Serial.
+    * **Java Application:** Robust, full-featured application (Main implementation) supporting both Serial and Wi-Fi.
+* **Real-time Parsing:** Efficient extraction of hardware parameters on the host machine.
 
 ## 🔧 Technology Stack
 
-* **PC Side (API Server):**
-    * **Arduino/C# Application:** To interface with LibreHardwareMonitor and serve the JSON API endpoint via HTTP.
-    * **LibreHardwareMonitor:** For accessing granular CPU/GPU sensor data.
-* **Display Side (Client):**
-    * **ESP32 Microcontroller:** Handles Wi-Fi connection, HTTP requests, JSON parsing, and display rendering.
-    * **Arduino IDE/PlatformIO:** For ESP32 programming.
-    * **Libraries (e.g., `HTTPClient`, `ArduinoJson`):** For network communication and data handling.
-    * **Display Library (e.g., U8g2, Adafruit GFX):** For visualization.
+### PC Side (Data Sender)
+* **Java Application (Main):** Handles data collection and transmission (supports Serial & Wi-Fi).
+* **Python Script:** Alternative script for parsing logs/sensor data and sending via Serial.
+* **LibreHardwareMonitor / System APIs:** Sources for granular CPU, GPU, and Memory data.
 
-## 📈 Future Plans
+### Display Side (ESP32 Client)
+* **ESP32 Microcontroller:** Handles data reception (Serial/UDP/HTTP) and rendering.
+* **SquareLine Studio:** Used for UI layout and design.
+* **LVGL (Light and Versatile Graphics Library):** The underlying graphics engine.
+* **TFT_eSPI:** Hardware driver for the display.
 
-* **Expanded Metrics:**
-    * CPU Clock Speed (Core/Package)
-    * CPU Load/Utilization
-    * GPU Temperature, Clock Speed, and Load
-    * RAM Usage
-* **Display Enhancements:** Implementing clear visual indicators, graphs, or different screen layouts. 
-* **Configuration:** Implement a web portal on the ESP32 for easy Wi-Fi configuration and API URL setup.
-* **Error Handling:** Robust handling for API connection failures or invalid JSON responses.
+## 📊 Current Metrics
+
+The system currently parses and displays:
+* **CPU:** Temperature, Load, Clock Speed
+* **GPU:** Core Temperature, Memory Usage
+* **RAM:** Used/Free memory
+*(List expands based on the parser configuration)*
 
 ## 💻 Setup and Usage
 
-*(Here you will add specific instructions on how to compile and run the PC server application and how to flash the code onto the ESP32, including Wi-Fi setup and API address configuration.)*
+### 1. ESP32 Setup
+1.  Open the project in **PlatformIO** or **Arduino IDE**.
+2.  Ensure the `TFT_eSPI` and `lvgl` libraries are correctly configured for your specific display driver.
+3.  Flash the firmware to your ESP32.
+4.  The screen will initialize the SquareLine UI and await data packets.
+
+### 2. PC Side Setup
+You can choose between the Java application or the Python script.
+
+#### Option A: Java Application (Recommended)
+* Build and run the Java project.
+* Select your COM port (for Serial) or IP address (for Wi-Fi).
+* The app will start sending parsed frames to the ESP32.
+
+#### Option B: Python Script
+* Install required dependencies (e.g., `pyserial`, `psutil`).
+* Run the script: `python monitor.py`
+* The script detects the ESP32 COM port and begins streaming data.
